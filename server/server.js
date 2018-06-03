@@ -1,43 +1,46 @@
-const express = require('express')
-const bodyParser = require('body-parser')
-const morgan = require('morgan')
-const session = require('express-session')
-const dbConnection = require('./database') 
-const MongoStore = require('connect-mongo')(session)
+const express = require('express');
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
+const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
 const passport = require('./passport');
-const app = express()
-const PORT = 8080
-// Route requires
-const user = require('./routes/user')
+const mongoose = require('mongoose');
+const methodOverride = require('method-override');
+const app = express();
 
-// MIDDLEWARE
-app.use(morgan('dev'))
+const PORT = 8080;
+
+const user = require('./routes/user');
+const file_storage = require('./routes/file_storage');
+
+
+app.use(morgan('dev'));
+app.use(methodOverride('_method'));
+
 app.use(
-	bodyParser.urlencoded({
-		extended: false
-	})
-)
-app.use(bodyParser.json())
+  bodyParser.urlencoded({
+    extended: false
+  })
+);
 
-// Sessions
+app.use(bodyParser.json());
+
 app.use(
-	session({
-		secret: 'shiggity-swiggity', //pick a random string to make the hash that is generated secure
-		store: new MongoStore({ mongooseConnection: dbConnection }),
-		resave: false, //required
-		saveUninitialized: false //required
-	})
-)
+  session({
+    secret: 'shiggity-swiggity',
+    store: new MongoStore({ mongooseConnection: mongoose.connection }),
+    resave: false,
+    saveUninitialized: false
+  })
+);
 
-// Passport
-app.use(passport.initialize())
-app.use(passport.session()) // calls the deserializeUser
+app.use(passport.initialize());
 
+app.use(passport.session());
 
-// Routes
-app.use('/user', user)
+app.use('/file', file_storage);
+app.use('/user', user);
 
-// Starting Server 
 app.listen(PORT, () => {
-	console.log(`App listening on PORT: ${PORT}`)
-})
+  console.log(`App listening on PORT: ${PORT}`);
+});
