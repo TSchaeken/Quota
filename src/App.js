@@ -49,7 +49,11 @@ class App extends Component {
       <div className="App">
         <Navbar updateUser={this.updateUser} loggedIn={this.state.loggedIn} />
         {this.state.loggedIn && <p>Join the party, {this.state.username}!</p>}
-        <Route exact path="/" render={() => <Home loggedIn={this.state.loggedIn} />} />
+        <Route
+          exact
+          path="/"
+          render={() => <Home loggedIn={this.state.loggedIn} />}
+        />
         <Route
           path="/login"
           render={() => <LoginForm updateUser={this.updateUser} />}
